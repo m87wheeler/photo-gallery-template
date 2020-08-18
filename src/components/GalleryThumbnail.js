@@ -26,6 +26,7 @@ const PreLoadImg = styled.div`
 `
 
 const GalleryThumbnail = props => {
+  // eslint-disable-next-line
   const [isVisible, setIsVisible] = useState(true)
 
   return (
