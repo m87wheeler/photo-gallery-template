@@ -6,6 +6,7 @@ import { sortEveryNth } from "../assets/logic/sortEveryNth"
 
 import GalleryThumbnail from "./GalleryThumbnail"
 import LightBox from "./Lightbox"
+import Button from "./Button"
 
 const GalleryImage = styled(GalleryThumbnail)`
   width: 100%;
@@ -35,29 +36,44 @@ const GalleryWrapper = styled.main`
   }
 `
 
+const LoadMoreButton = styled(Button)`
+  margin: 0 auto;
+`
+
+const ButtonContainer = styled.div`
+  column-span: all;
+  text-align: center;
+`
+
 const GalleryContainer = () => {
   // ***** state *****
-  const [width] = useWindowSize()
+  const [width, height] = useWindowSize()
   const [isLoading, setIsLoading] = useState(true)
   const [imageData, setImageData] = useState([])
   const [sortedImageData, setSortedImageData] = useState([])
   const [clickedImgIndex, setClickedImgIndex] = useState("")
   const [displayLightBox, setDisplayLightBox] = useState(0)
+  const [loadCount, setLoadCount] = useState(1)
 
   // ***** fetch data *****
   const fetchData = async url => {
     try {
       const response = await fetch(url)
       const data = await response.json()
-      setImageData(data)
+      setImageData(imageData => [...imageData, ...data])
+      setLoadCount(loadCount => loadCount + 1)
     } catch (err) {
       console.log("Error:", err)
     }
   }
 
   useEffect(() => {
-    fetchData("https://picsum.photos/v2/list?page=12")
+    fetchData("https://picsum.photos/v2/list?page=1")
   }, [])
+
+  const fetchNextData = async () => {
+    fetchData(`https://picsum.photos/v2/list?page=${loadCount}`)
+  }
 
   // ***** sort array of data based on viewport width *****
   useEffect(() => {
@@ -102,6 +118,9 @@ const GalleryContainer = () => {
           />
         ))
       )}
+      <ButtonContainer>
+        <LoadMoreButton onClick={fetchNextData}>Load More</LoadMoreButton>
+      </ButtonContainer>
       <React.Fragment>
         <LightBox
           data={sortedImageData}
